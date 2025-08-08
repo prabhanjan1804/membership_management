@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Mitgliederliste{% endblock %}
+
+{% block content %}
+  <h2>Mitgliederliste</h2>
+    <div class="controls">
+    <input type="text" id="searchInput" placeholder="Suche nach Name oder E-Mail" onkeyup="filterMembers()">
+    <button onclick="exportTableToCSV()">Exportiere als CSV</button>
+    <button onclick="window.print()">Drucken</button>
+  </div>
+  <div style="padding-left: 0; padding-right: 0;">
+    <table style="margin-left: 0; width: 95%; margin-right: auto; margin-left: auto;">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Geburtsdatum</th>
+        <th>Email</th>
+        <th>Adresse</th>
+        <th>Telefonnummer</th>
+        <th>Beitrittsdatum</th>
+        <th>Ablaufdatum</th>
+        <th>Grund für Antrag</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for member in members %}
+        <tr>
+          <td>{{ member.name }}</td>
+          <td>{{ member.birth_date }}</td>
+          <td>{{ member.email }}</td>
+          <td>{{ member.dorm_room }}, {{ member.street_address }}, {{ member.postal_code_city }}</td>
+          <td>{{ member.country_code }} {{ member.phone }}</td>
+          <td>{{ member.registration_date }}</td>
+          <td>{{ member.membership_expiry }}</td>
+          <td>{{ member.application_reason }}</td>
+          <td>{{ member.status }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="9">Keine Mitglieder gefunden.</td></tr>
+      {% endfor %}
+    </tbody>
+    </table>
+  </div>
+{% endblock %}

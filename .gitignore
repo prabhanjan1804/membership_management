@@ -1,0 +1,23 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# Virtual environments
+venv/
+env/
+
+# Django secret settings
+.env
+
+# VS Code / PyCharm
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+
+# Static/media (optional if you collect it during deploy)
+staticfiles/
+media/

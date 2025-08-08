@@ -1,0 +1,195 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Membership System{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .site-header {
+      background-color: white;
+      color: #003366;
+      padding: 1rem;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .site-header img {
+      height: 50px;
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 1rem;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+      height: calc(100vh - 120px);
+      position: fixed;
+      top: 120px;
+      left: 0;
+      transition: transform 0.3s ease;
+      border: none;
+      z-index: 999;
+    }
+
+    .main-content {
+      margin-top: 5px;
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+
+    .sidebar h3 {
+      margin-top: 0;
+      color: #003366;
+    }
+
+    .sidebar a {
+      display: block;
+      margin: 0.5rem 0;
+      color: #003366;
+      text-decoration: none;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    .main-content {
+      margin-left: 0;
+      padding: 1rem;
+      transition: margin-left 0.3s ease;
+    }
+
+    .main-content.shifted {
+      margin-left: 220px;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #003366;
+      padding: 0.5rem 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .controls {
+      margin-bottom: 1em;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #fafafa;
+      border-top: 1px solid #ccc;
+    }
+  </style>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const sidebar = document.getElementById("sidebar");
+      const content = document.getElementById("main-content");
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = "toggle-btn";
+      toggleBtn.id = "toggle-btn";
+      toggleBtn.innerText = "☰";
+      toggleBtn.onclick = function () {
+        sidebar.classList.toggle("collapsed");
+        content.classList.toggle("shifted");
+        toggleBtn.innerText = sidebar.classList.contains("collapsed") ? "☰" : "✖";
+      };
+      const toggleContainer = document.createElement("div");
+      toggleContainer.style.padding = "1rem";
+      toggleContainer.appendChild(toggleBtn);
+      if (sidebar) {
+        content.prepend(toggleContainer);
+      }
+    });
+
+    function filterMembers() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const name = row.cells[0].textContent.toLowerCase();
+        const email = row.cells[2].textContent.toLowerCase();
+        row.style.display = name.includes(input) || email.includes(input) ? "" : "none";
+      });
+    }
+
+    function exportTableToCSV() {
+      const rows = Array.from(document.querySelectorAll("table tr"));
+      const csv = rows.map(row =>
+        Array.from(row.children).map(cell =>
+          `"${cell.textContent.replace(/"/g, '""')}"`
+        ).join(",")
+      ).join("\n");
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "members.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
+        <h1>Studentische Selbstverwaltung 'StuSta' e.V.</h1>
+      </div>
+      <div>
+        {% if user.is_authenticated %}
+          Willkommen, {{ user.username }}
+        {% else %}
+          <a href="{% url 'login' %}">Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  {% if user.is_authenticated and user.groups.first.name == "Vorstand" %}
+    <aside id="sidebar" class="sidebar">
+      <a href="{% url 'member_list' %}">Mitgliederliste</a>
+      <a href="{% url 'approve' %}">Mitgliederanträge</a>
+      <a href="/admin/">Admin-Bereich</a>
+      <a href="{% url 'logout' %}">Logout</a>
+    </aside>
+  {% endif %}
+
+  <div id="main-content" class="main-content {% if user.is_authenticated and user.groups.first.name == 'Vorstand' %}shifted{% endif %}">
+
+
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Studentische Selbstverwaltung 'StuSta' e.V.</p>
+    </footer>
+  </div>
+
+</body>
+</html>

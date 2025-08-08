@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Approval Panel{% endblock %}
+
+{% block content %}
+<h2>Pending Membership Applications</h2>
+<form method="post">
+    {% csrf_token %}
+    {% for member in members %}
+        <div style="margin-bottom: 20px;">
+            <strong>{{ member.name }}</strong> ({{ member.email }})<br>
+            <em>{{ member.message }}</em><br>
+            <button name="approve_{{ member.id }}" type="submit">Approve</button>
+            <button name="deny_{{ member.id }}" type="submit">Deny</button>
+        </div>
+    {% empty %}
+        <p>No pending applications.</p>
+    {% endfor %}
+</form>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mitgliedsantrag{% endblock %}
+
+{% block content %}
+<h2>Mitgliedsantrag</h2>
+
+<form method="post" id="registration-form">
+    {% csrf_token %}
+
+    <p>{{ form.stusta_resident.label_tag }} {{ form.stusta_resident }}</p>
+    <p>{{ form.name.label_tag }} {{ form.name }}</p>
+    <p>{{ form.birth_date.label_tag }} {{ form.birth_date }}</p>
+    <p>{{ form.email.label_tag }} {{ form.email }}</p>
+    <p>{{ form.country_code.label_tag }} {{ form.country_code }}</p>
+    <p>{{ form.phone_number.label_tag }} {{ form.phone_number }}</p>
+    <p>{{ form.application_reason.label_tag }} {{ form.application_reason }}</p>
+
+    <div id="stusta-fields">
+        <p>{{ form.dorm_room.label_tag }} {{ form.dorm_room }}</p>
+    </div>
+
+    <div id="external-fields">
+        <p>{{ form.street_address.label_tag }} {{ form.street_address }}</p>
+        <p>{{ form.postal_code_city.label_tag }} {{ form.postal_code_city }}</p>
+    </div>
+
+    <button type="submit">Absenden</button>
+</form>
+
+<script>
+    const stustaCheckbox = document.getElementById('id_stusta_resident');
+    const stustaFields = document.getElementById('stusta-fields');
+    const externalFields = document.getElementById('external-fields');
+
+    function toggleFields() {
+        if (stustaCheckbox.checked) {
+            stustaFields.style.display = 'block';
+            externalFields.style.display = 'none';
+        } else {
+            stustaFields.style.display = 'none';
+            externalFields.style.display = 'block';
+        }
+    }
+
+    stustaCheckbox.addEventListener('change', toggleFields);
+    window.addEventListener('load', toggleFields);
+</script>
+{% endblock %}
