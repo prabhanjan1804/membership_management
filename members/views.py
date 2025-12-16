@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required, user_passes_test 
 from django.shortcuts import render
 from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 
 def is_director(user):
     return user.groups.filter(name='Vorstand').exists()
@@ -42,21 +43,20 @@ def member_list(request):
     return render(request, 'member_list.html', {'members': members})
 
 
-def passive_renew(request):
-    if request.method == "POST":
+
+def passive_renewal(request):
+    if request.method == 'POST':
         form = PassiveRenewalForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data["email"]
-            try:
-                member = Member.objects.get(email=email)
-                member.status = "PASSIVE"
-                member.save()
-                return render(request, "thanks_passive.html")
-            except Member.DoesNotExist:
-                form.add_error("email", "No member found.")
+            member = form.save(commit=False)
+            member.status = 'PASSIVE'
+            member.save()
+            messages.success(request, "Your passive membership renewal request has been submitted.")
+            return redirect('passive_renewal')
     else:
         form = PassiveRenewalForm()
-    return render(request, "passive_renew.html", {"form": form})
+
+    return render(request, 'passive_renewal.html', {'form': form})
 
 def logout_success(request):
     return render(request, 'registration/logout.html')
